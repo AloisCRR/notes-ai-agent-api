@@ -1,41 +1,66 @@
 import uuid
+from typing import TypedDict
 
-import google.generativeai as genai
+import aiohttp
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import db_pool
+from app.config import settings
+from app.db.models.note import notes
+from app.db.session import get_db
 from app.dependencies import get_current_user
-from app.schemas.note import NoteCreate
+from app.schemas.note import NoteCreate, NoteCreateResponse
 
-router = APIRouter()
+router = APIRouter(tags=["notes"])
+
+
+class EmbeddingResponse(TypedDict):
+    values: list[float]
 
 
 @router.post("/notes")
-async def create_note(note: NoteCreate, user_id: uuid.UUID = Depends(get_current_user)):
-    if db_pool is None:
-        raise HTTPException(
-            status_code=500, detail="Database connection not initialized"
-        )
+async def create_note(
+    note: NoteCreate,
+    user_id: uuid.UUID = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> NoteCreateResponse:
+    # Generate embedding using the Gemini API
+    api_key = settings.gemini_api_key
 
-    # Generate embedding using the generative AI service
-    result = genai.embed_content(
-        model="models/text-embedding-004", content=note.content
-    )
-    embedding = result.get("embedding")
-    if embedding is None:
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={api_key}"
+
+    payload = {
+        "model": "models/text-embedding-004",
+        "content": {"parts": [{"text": note.content}]},
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url,
+            json=payload,
+        ) as response:
+            response.raise_for_status()
+
+            result = await response.json()
+
+            embedding: EmbeddingResponse = result.get("embedding")
+
+    if not embedding.get("values"):
         raise HTTPException(status_code=500, detail="Failed to generate embedding")
 
-    # Insert the note into the database, including the associated user_id and embedding.
-    query = """
-        INSERT INTO public.notes (user_id, content, embedding)
-        VALUES ($1, $2, $3)
-        RETURNING id
-    """
-    try:
-        async with db_pool.acquire() as connection:
-            record = await connection.fetchrow(query, user_id, note.content, embedding)
-            note_id = record["id"]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Database insertion failed") from e
+    query = (
+        insert(notes)
+        .values(
+            user_id=user_id,
+            content=note.content,
+            embedding=embedding.get("values"),
+        )
+        .returning(notes.c.id)
+    )
 
-    return {"id": note_id, "user_id": str(user_id)}
+    result = await db.execute(query)
+    await db.commit()
+
+    note_id = result.scalar_one()
+    return NoteCreateResponse(id=note_id)

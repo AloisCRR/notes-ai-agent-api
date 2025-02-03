@@ -1,13 +1,14 @@
 [project]
 name = "notes-ai-agent-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "API for the Notes AI Agent"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiohttp>=3.11.11",
     "asyncpg>=0.30.0",
     "fastapi[standard]>=0.115.8",
-    "google-generativeai>=0.8.4",
     "pydantic-settings>=2.7.1",
     "pyjwt>=2.10.1",
+    "sqlalchemy>=2.0.37",
 ]

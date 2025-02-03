@@ -29,7 +29,12 @@ async def get_current_user(request: Request) -> uuid.UUID:
 
     try:
         # Decode using the Supabase JWT secret. Adjust algorithm as needed.
-        payload = jwt.decode(token, settings.supabase_jwt_secret, algorithms=["HS256"])
+        payload = jwt.decode(
+            token,
+            settings.supabase_jwt_secret,
+            algorithms=["HS256"],
+            audience="authenticated",
+        )
         user_id_str = payload.get("sub")
         if not user_id_str:
             raise HTTPException(
