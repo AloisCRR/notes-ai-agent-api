@@ -1,22 +1,17 @@
 import uuid
-from typing import TypedDict
 
 import aiohttp
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.common.types import EmbeddingResponse
 from app.config import settings
-from app.db.models.note import notes
+from app.db.models.note import Note
 from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.schemas.note import NoteCreate, NoteCreateResponse
 
 router = APIRouter(tags=["notes"])
-
-
-class EmbeddingResponse(TypedDict):
-    values: list[float]
 
 
 @router.post("/notes")
@@ -49,18 +44,15 @@ async def create_note(
     if not embedding.get("values"):
         raise HTTPException(status_code=500, detail="Failed to generate embedding")
 
-    query = (
-        insert(notes)
-        .values(
-            user_id=user_id,
-            content=note.content,
-            embedding=embedding.get("values"),
-        )
-        .returning(notes.c.id)
+    db_note = Note(
+        user_id=user_id,
+        content=note.content,
+        embedding=embedding.get("values"),
     )
 
-    result = await db.execute(query)
-    await db.commit()
+    db.add(db_note)
 
-    note_id = result.scalar_one()
-    return NoteCreateResponse(id=note_id)
+    await db.commit()
+    await db.refresh(db_note)
+
+    return NoteCreateResponse(id=db_note.id)

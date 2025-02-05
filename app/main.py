@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes.notes import router as notes_router
+from app.routes import agent, notes
 
 # Create the FastAPI app with the database lifecycle context
 app = FastAPI(
@@ -21,5 +21,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Include the notes routes
-app.include_router(notes_router)
+# Include routers
+app.include_router(notes.router)
+app.include_router(agent.router)

@@ -1,27 +1,30 @@
-from sqlalchemy import TIMESTAMP, BigInteger, Column, Float, ForeignKey, Table, Text
-from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from datetime import datetime, timezone
+from typing import Optional
+from uuid import UUID
 
-from app.db.base import metadata
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import DateTime
+from sqlalchemy.orm import Mapped, mapped_column
 
-notes = Table(
-    "notes",
-    metadata,
-    Column(
-        "id",
-        BigInteger,
-        primary_key=True,
-        index=True,
-        autoincrement=True,
-    ),
-    Column(
-        "user_id",
-        UUID(as_uuid=True),
-        ForeignKey("auth.users.id", ondelete="CASCADE"),
-        nullable=True,
-    ),
-    Column("content", Text, nullable=False),
-    Column("embedding", ARRAY(Float), nullable=True),
-    Column("created_at", TIMESTAMP(timezone=True)),
-    Column("updated_at", TIMESTAMP(timezone=True)),
-    schema="public",
-)
+from app.db.base import Base
+
+
+class Note(Base):
+    __tablename__ = "notes"
+    __table_args__ = {"schema": "public"}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[Optional[UUID]]
+    content: Mapped[str]
+    embedding: Mapped[Optional[Vector]] = mapped_column(Vector)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=datetime.now(timezone.utc)
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"Note(id={self.id!r}, user_id={self.user_id!r}, content={self.content!r})"
+        )
