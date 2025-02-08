@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from src.db.base import Base
 
 
 class Chat(Base):

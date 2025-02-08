@@ -3,7 +3,7 @@ import uuid
 import jwt
 from fastapi import HTTPException, Request, status
 
-from app.config import settings
+from src.config import settings
 
 
 async def get_current_user(request: Request) -> uuid.UUID:

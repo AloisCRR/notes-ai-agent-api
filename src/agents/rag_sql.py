@@ -10,9 +10,9 @@ from pydantic_ai.models.openai import OpenAIModel
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.common.types import EmbeddingResponse
-from app.config import Settings, settings
-from app.db.models.note import Note
+from src.common.types import EmbeddingResponse
+from src.config import Settings, settings
+from src.db.models.note import Note
 
 
 def is_valid_select_query(sql: str) -> bool:

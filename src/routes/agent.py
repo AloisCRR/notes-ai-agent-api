@@ -6,13 +6,13 @@ from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.agents.rag_sql import NotesAppDeps, notes_agent
-from app.config import settings
-from app.db.models.chat import Chat
-from app.db.models.chat_messages import ChatMessage
-from app.db.session import get_db
-from app.dependencies import get_current_user
-from app.schemas.agent import ChatRequest, ChatResponse
+from src.agents.rag_sql import NotesAppDeps, notes_agent
+from src.config import settings
+from src.db.models.chat import Chat
+from src.db.models.chat_messages import ChatMessage
+from src.db.session import get_db
+from src.dependencies import get_current_user
+from src.schemas.agent import ChatRequest, ChatResponse
 
 router = APIRouter(tags=["notes"])
 

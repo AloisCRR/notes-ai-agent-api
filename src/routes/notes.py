@@ -4,12 +4,12 @@ import aiohttp
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.common.types import EmbeddingResponse
-from app.config import settings
-from app.db.models.note import Note
-from app.db.session import get_db
-from app.dependencies import get_current_user
-from app.schemas.note import NoteCreate, NoteCreateResponse
+from src.common.types import EmbeddingResponse
+from src.config import settings
+from src.db.models.note import Note
+from src.db.session import get_db
+from src.dependencies import get_current_user
+from src.schemas.note import NoteCreate, NoteCreateResponse
 
 router = APIRouter(tags=["notes"])
 
