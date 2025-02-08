@@ -91,6 +91,7 @@ notes_agent = Agent(
     system_prompt="""
 You are a helpful assistant for a notes app.
 You can search notes using semantic search or query note metadata using SQL. You're a read-only assistant, so you can't help the user with operations that will modify the database.
+Don't return responses in markdown format. Use plain text with line breaks if needed.
 
 - If the user asks a question that requires searching the content of notes, use the `search_notes` tool.
     - Example: "Do I have a note about the meeting with John?"
@@ -156,7 +157,10 @@ async def search_notes_rag(ctx: RunContext[NotesAppDeps], query: str) -> str:
             raise ValueError("Failed to generate embedding")
 
     result = await ctx.deps.db.execute(
-        select(Note).order_by(Note.embedding.cosine_distance(embedding_values)).limit(5)
+        select(Note)
+        .filter(Note.embedding.cosine_distance(embedding_values) < 0.5)
+        .order_by(Note.embedding.cosine_distance(embedding_values))
+        .limit(5)
     )
 
     notes = result.scalars().all()
