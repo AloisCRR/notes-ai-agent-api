@@ -31,7 +31,7 @@ async def get_current_user(request: Request) -> uuid.UUID:
         # Decode using the Supabase JWT secret. Adjust algorithm as needed.
         payload = jwt.decode(
             token,
-            settings.supabase_jwt_secret,
+            settings.notes_ai_agent_supabase_jwt_secret,
             algorithms=["HS256"],
             audience="authenticated",
         )

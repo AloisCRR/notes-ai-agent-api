@@ -21,7 +21,7 @@ async def create_note(
     db: AsyncSession = Depends(get_db),
 ) -> NoteCreateResponse:
     # Generate embedding using the Gemini API
-    api_key = settings.gemini_api_key
+    api_key = settings.notes_ai_agent_gemini_api_key
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={api_key}"
 

@@ -82,7 +82,7 @@ class SearchResult(BaseModel):
     updated_at: str
 
 
-model = OpenAIModel("gpt-4o-mini", api_key=settings.openai_api_key)
+model = OpenAIModel("gpt-4o-mini", api_key=settings.notes_ai_agent_openai_api_key)
 
 
 notes_agent = Agent(
@@ -129,7 +129,7 @@ async def search_notes_rag(ctx: RunContext[NotesAppDeps], query: str) -> str:
         ctx: The call context.
         query: Natural language query to search for.
     """
-    api_key = ctx.deps.env_vars.gemini_api_key
+    api_key = ctx.deps.env_vars.notes_ai_agent_gemini_api_key
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={api_key}"
 
