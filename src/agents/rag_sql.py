@@ -185,19 +185,14 @@ async def query_notes_metadata(ctx: RunContext[NotesAppDeps], query: str) -> str
         raise ModelRetry("Invalid SELECT SQL query")
 
     try:
-        # Execute the query and map results to Note objects
-        result = await ctx.deps.db.execute(select(Note).from_statement(text(query)))
-        notes = result.scalars().all()
+        # Execute the query directly without mapping to Note objects
+        result = await ctx.deps.db.execute(text(query))
+        rows = result.all()
 
-        if not notes:
-            return "No notes found for the specified date."
+        if not rows:
+            return "No notes found."
+
+        return format_as_xml(rows)
 
     except Exception as e:
         raise ModelRetry(f"Failed to query notes metadata: {e}") from e
-
-    return "\n\n".join(
-        [
-            f"Content: {note.content}\nCreated at: {note.created_at.strftime('%Y-%m-%d')}\n"
-            for note in notes
-        ]
-    )
