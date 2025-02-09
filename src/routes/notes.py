@@ -60,6 +60,5 @@ async def create_note(
     db.add(db_note)
 
     await db.commit()
-    await db.refresh(db_note)
 
     return NoteCreateResponse(id=db_note.id)
