@@ -2,6 +2,7 @@ import uuid
 
 import aiohttp
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.common.types import EmbeddingResponse
@@ -20,6 +21,12 @@ async def create_note(
     user_id: uuid.UUID = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> NoteCreateResponse:
+    await db.execute(text("SET ROLE authenticated"))
+    await db.execute(
+        text("SELECT set_config('request.jwt.claim.sub', :user_id, true)"),
+        {"user_id": str(user_id)},
+    )
+
     # Generate embedding using the Gemini API
     api_key = settings.notes_ai_agent_gemini_api_key
 
