@@ -46,7 +46,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          
+
   deploy:
     runs-on: ubuntu-latest
     # Run after build-and-push job completes
@@ -56,11 +56,11 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v4  # Updated to latest version
 
-      - name: Deploy
-        uses: kitconcept/docker-stack-deploy@v1.0.1
+      - name: Docker Stack Deploy
+        uses: cssnr/stack-deploy-action@v1
         with:
-          remote_host: ${{ secrets.REMOTE_HOST }}
-          remote_user: ${{ secrets.REMOTE_USER }}
-          remote_private_key: ${{ secrets.REMOTE_PRIVATE_KEY }}
-          stack_file: "docker-stack.yml"
-          stack_name: "notes-ai-agent-api" 
+          name: notes-ai-agent-api
+          file: docker-stack.yml
+          host: ${{ secrets.REMOTE_HOST }}
+          user: ${{ secrets.REMOTE_USER }}
+          ssh_key: ${{ secrets.REMOTE_PRIVATE_KEY }}
