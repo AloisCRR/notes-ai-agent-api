@@ -1,0 +1,23 @@
+services:
+  api:
+    image: ghcr.io/aloiscrr/notes-ai-agent-api:main
+    ports:
+      - "8000:8000"
+    secrets:
+      - notes_ai_agent_database_url
+      - notes_ai_agent_gemini_api_key
+      - notes_ai_agent_supabase_jwt_secret
+      - notes_ai_agent_openai_api_key
+    deploy:
+      update_config:
+        order: start-first
+
+secrets:
+  notes_ai_agent_database_url:
+    external: true
+  notes_ai_agent_gemini_api_key:
+    external: true
+  notes_ai_agent_supabase_jwt_secret:
+    external: true
+  notes_ai_agent_openai_api_key:
+    external: true
