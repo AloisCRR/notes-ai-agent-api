@@ -14,7 +14,7 @@ from src.db.session import get_db
 from src.dependencies import get_current_user
 from src.schemas.agent import ChatRequest, ChatResponse
 
-router = APIRouter(tags=["notes"])
+router = APIRouter(tags=["agents"])
 
 
 @router.post("/agent/chat/{chat_id}")

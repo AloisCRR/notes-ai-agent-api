@@ -1,36 +1,21 @@
 import uuid
 
 import jwt
-from fastapi import HTTPException, Request, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.config import settings
 
+security = HTTPBearer()
 
-async def get_current_user(request: Request) -> uuid.UUID:
-    auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header missing",
-        )
-    try:
-        # Expect header format: "Bearer <token>"
-        token_type, token = auth_header.split(" ")
-        if token_type.lower() != "bearer":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication type",
-            )
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Authorization header format. Expected 'Bearer <token>'",
-        ) from exc
 
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> uuid.UUID:
     try:
-        # Decode using the Supabase JWT secret. Adjust algorithm as needed.
+        # Decode using the Supabase JWT secret
         payload = jwt.decode(
-            token,
+            credentials.credentials,
             settings.notes_ai_agent_supabase_jwt_secret,
             algorithms=["HS256"],
             audience="authenticated",
@@ -43,9 +28,15 @@ async def get_current_user(request: Request) -> uuid.UUID:
             )
         # Convert the string to a UUID object
         user_id = uuid.UUID(user_id_str)
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        ) from e
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token format",
         ) from e
 
     return user_id
