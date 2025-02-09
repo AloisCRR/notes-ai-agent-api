@@ -3,10 +3,10 @@ services:
     image: ghcr.io/aloiscrr/notes-ai-agent-api:main
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.web.loadbalancer.server.port=8000"
-      - "traefik.http.routers.web.rule=Host(`notes-ai-agent-api.aloiscrr.dev`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=myresolver"
+      - "traefik.http.services.notes-ai-service.loadbalancer.server.port=8000"
+      - "traefik.http.routers.notes-ai-router.rule=Host(`notes-ai-agent-api.aloiscrr.dev`)"
+      - "traefik.http.routers.notes-ai-router.entrypoints=websecure"
+      - "traefik.http.routers.notes-ai-router.tls.certresolver=myresolver"
     secrets:
       - notes_ai_agent_database_url
       - notes_ai_agent_gemini_api_key
