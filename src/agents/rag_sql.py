@@ -192,7 +192,7 @@ async def query_notes_metadata(ctx: RunContext[NotesAppDeps], query: str) -> str
         if not rows:
             return "No notes found."
 
-        return format_as_xml(rows)
+        return format_as_xml(str(rows))
 
     except Exception as e:
         raise ModelRetry(f"Failed to query notes metadata: {e}") from e
