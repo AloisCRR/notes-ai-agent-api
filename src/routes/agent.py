@@ -49,11 +49,14 @@ async def chat_with_agent(
         messages.extend(ModelMessagesTypeAdapter.validate_json(str(message)))
 
     async with aiohttp.ClientSession() as session:
-        result = await notes_agent.run(
-            request.query,
-            message_history=messages,
-            deps=NotesAppDeps(db=db, env_vars=settings, http_session=session),
-        )
+        try:
+            result = await notes_agent.run(
+                request.query,
+                message_history=messages,
+                deps=NotesAppDeps(db=db, env_vars=settings, http_session=session),
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     # Decode bytes to string if necessary and create chat message
     chat_message = ChatMessage(
