@@ -4,7 +4,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.notes-ai-service.loadbalancer.server.port=8000"
-      - "traefik.http.routers.notes-ai-router.rule=Host(`notes-ai-agent-api.aloiscrr.dev`)"
+      - "traefik.http.routers.notes-ai-router.rule=Host(`notes-ai-agent-api.services.aloiscrr.dev`)"
       - "traefik.http.routers.notes-ai-router.entrypoints=websecure"
       - "traefik.http.routers.notes-ai-router.tls.certresolver=myresolver"
     secrets:
