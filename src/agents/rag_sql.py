@@ -158,7 +158,7 @@ async def search_notes_rag(ctx: RunContext[NotesAppDeps], query: str) -> str:
 
     result = await ctx.deps.db.execute(
         select(Note)
-        .filter(Note.embedding.cosine_distance(embedding_values) < 0.5)
+        .filter(Note.embedding.cosine_distance(embedding_values) < 0.7)
         .order_by(Note.embedding.cosine_distance(embedding_values))
         .limit(5)
     )
